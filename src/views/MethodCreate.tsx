@@ -2,6 +2,7 @@ import React from "react";
 import { useState, useEffect } from "react";
 import { Tokens } from "../types/AppTypes";
 import { Container, Form, Row, Col, Button } from "react-bootstrap";
+import { useHistory  } from 'react-router-dom';
 
 interface MethodCreateProps {
   isLoggedIn: boolean;
@@ -11,6 +12,7 @@ interface MethodCreateProps {
   setMethodCreated: React.Dispatch<React.SetStateAction<boolean>>;
   setChosenMethod: React.Dispatch<React.SetStateAction<string>>;
   setActiveProblemId: React.Dispatch<React.SetStateAction<number | null>>;
+  setCurrentPage: React.Dispatch<React.SetStateAction<string>>;
 }
 
 interface Problem {
@@ -28,6 +30,7 @@ function MethodCreate({
   setMethodCreated,
   setChosenMethod,
   setActiveProblemId,
+  setCurrentPage,
 }: MethodCreateProps) {
   const [problems, SetProblems] = useState<Problem[]>([
     {
@@ -39,7 +42,7 @@ function MethodCreate({
   ]);
   const [problemId, SetProblemId] = useState<number>(1);
   const [methodKey, SetMethodKey] = useState<number>(0);
-
+  let history = useHistory();
   useEffect(() => {
     if (!isLoggedIn) {
       // do nothing
@@ -75,20 +78,24 @@ function MethodCreate({
   }, []);
 
   const handleSubmit = async () => {
+    
     console.log(`selected: problem ${problemId} method ${methodKey}`);
     try {
       let methodName: string = "";
       switch (methodKey) {
         case 0: {
           methodName = "reference_point_method";
+          setCurrentPage("Reference point method");
           break;
         }
         case 1: {
           methodName = "synchronous_nimbus";
+          setCurrentPage("Synchronous NIMBUS");
           break;
         }
         case 2: {
           methodName = "nautilus_navigator";
+          setCurrentPage("Nautilus navigator");
           break;
         }
         default: {
@@ -112,6 +119,7 @@ function MethodCreate({
         setMethodCreated(true);
         setActiveProblemId(problemId);
         setChosenMethod(methodName);
+        history.push("/method/optimize");
         // created!
       } else {
         console.log(`Got return code ${res.status}. Could not create method.`);
@@ -133,10 +141,11 @@ function MethodCreate({
 
   return (
     <>
-      <Container>
-        <Row>
-          <Col>
-            <h2>Create a method</h2>
+      <Container className="py-4 py-xl-5">
+        <Row className="mb-5">
+          <Col lg={8} className="text-center mx-auto">
+            <h2>Start a new solution process</h2>
+            <p className="w-lg-50">Solve a multiobjective optimization problem utilizing one of the methods available.</p>
           </Col>
         </Row>
         <Row>
@@ -189,8 +198,8 @@ function MethodCreate({
                       handleSubmit();
                     }}
                   >
-                    Create method
-                  </Button>
+                    Start
+                  </Button>  
                 </Col>
               </Row>
             </Form>

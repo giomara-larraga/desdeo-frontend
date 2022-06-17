@@ -11,7 +11,6 @@ import ReactLoading from "react-loading";
 import { ParseSolutions, ToTrueValues } from "../utils/DataHandling";
 import { HorizontalBars, ParallelAxes } from "desdeo-components";
 import SolutionTable from "../components/SolutionTable";
-import Split from "react-split";
 
 interface ReferencePointMethodProps {
   isLoggedIn: boolean;
@@ -272,127 +271,9 @@ function ReferencePointMethod({
   ) {
     return <>Please define a method first.</>;
   }
-  
 
   return (
-    <Container fluid>
-{/*         <Row className="g-0" style={{alignItems:"center"}}>
-            <h2>Reference point method</h2>
-        </Row> */}
-        <Row>
-        <Col lg={4} className="border-right">
-        <Row>
-        <h4>Preference information</h4>
-        </Row>
-        <Row>
-        {fetchedInfo && (
-                  <div className={"mt-5"}>
-                    <HorizontalBars
-                      objectiveData={ToTrueValues(
-                        ParseSolutions([referencePoint], activeProblemInfo)
-                      )}
-                      referencePoint={referencePoint.map((v, i) =>
-                        activeProblemInfo.minimize[i] === 1 ? v : -v
-                      )}
-                      currentPoint={currentPoint.map((v, i) =>
-                        activeProblemInfo.minimize[i] === 1 ? v : -v
-                      )}
-                      setReferencePoint={(ref: number[]) =>
-                        SetReferencePoint(
-                          ref.map((v, i) =>
-                            activeProblemInfo.minimize[i] === 1 ? v : -v
-                          )
-                        )
-                      }
-                    />
-                  </div>
-                )}
-        </Row>
-        <Row style={{ flexDirection: 'row',
-            height: 50,
-            justifyContent: 'center',
-            alignItems: 'center',
-            position: 'absolute', //Here is the trick
-            bottom: 0,}}>
-              <Col>
-              {!loading && !satisfied && (
-                <Button size={"lg"} onClick={iterate}>
-                  Iterate
-                </Button>
-              )}
-              {!loading && satisfied && (
-                <Button size={"lg"} onClick={iterate}>
-                  Stop
-                </Button>
-              )}
-              {loading && (
-                <Button
-                  disabled={true}
-                  size={"lg"}
-                  variant={"info"}
-                >
-                  {"Working... "}
-                  <ReactLoading
-                    type={"bubbles"}
-                    color={"#ffffff"}
-                    className={"loading-icon"}
-                    height={28}
-                    width={32}
-                  />
-                </Button>
-              )}
-              </Col>
-              <Col>
-              <Button size={"lg"} onClick={iterate}>
-                  Stop
-                </Button>
-              </Col>
-            
-
-        </Row>
-      </Col>
-      
-      <Col lg={8}>
-        <Row>
-        <h4>Solutions obtained with the reference point method</h4>
-        </Row>
-        <Row>
-        {!(alternatives === undefined) && (
-            <>
-              <Row>
-                <Col sm={6}>
-                  <div className={"mt-2"}>
-                    <SolutionTable
-                      objectiveData={alternatives!}
-                      setIndex={SetIndexCurrentPoint}
-                      selectedIndex={indexCurrentPoint}
-                      tableTitle={""}
-                    />
-                  </div>
-                </Col>
-                <Col sm={6}>
-                  <div className={"mt-3"}>
-                    <ParallelAxes
-                      objectiveData={ToTrueValues(alternatives!)}
-                      selectedIndices={[indexCurrentPoint]}
-                      handleSelection={(x: number[]) => {
-                        x.length > 0
-                          ? SetIndexCurrentPoint(x.pop()!)
-                          : SetIndexCurrentPoint(indexCurrentPoint);
-                      }}
-                    />
-                  </div>
-                </Col>
-              </Row>
-            </>
-          )}
-        </Row>
-      </Col>
-    </Row>  
-    </Container>
-   
-    );
-    {/* <Container>
+    <Container>
       <h3 className="mb-3">{"Reference point method"}</h3>
       {!showFinal && (
         <>
@@ -580,7 +461,7 @@ function ReferencePointMethod({
         </>
       )}
     </Container>
-  ); */}
+  );
 }
 
 export default ReferencePointMethod;

@@ -41,6 +41,9 @@ html,
 body {
   height: 100%;
   margin: 0;
+  font-size: 1em;
+  line-height: 1.5;
+
 }
 
 .main-box {
@@ -125,4 +128,28 @@ body {
   margin: 8px 8px 8px 8px;
   border: 2px black solid;
   border-radius: 1%;
+}
+
+.gutter {
+  background: rgba(217, 19, 19, 0.923);
+  flex-shrink: 0;
+}
+
+.gutter-horizontal {
+  cursor: ew-resize;
+}
+
+.gutter-vertical {
+  cursor: ns-resize;
+}
+.comp {
+  display: inline-block;
+  margin:0px;
+  padding:0px;
+}
+.wrap {
+  display: flex;
+  margin: 0px;
+  padding: 0px;
+  width: 100%;
 }

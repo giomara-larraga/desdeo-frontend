@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { appendErrors, useForm } from "react-hook-form";
 import { formatDiagnosticsWithColorAndContext } from "typescript";
 import { useState } from "react";
-import landing from '../images/values-1.png';
 
 interface FormData {
   username: string;
@@ -46,18 +45,13 @@ function Register({ apiUrl }: { apiUrl: string }) {
   };
 
   return (
-    <Row className="g-0">
-    <Col lg={12} style={{ height: "calc(100vh - 57px)"}} className="d-flex align-items-center">
-    
-  <Container>
-    <Row style={{ height: "calc(100vh - 57px)"}} className="d-flex align-items-center">
-      <Col lg={6} className="p-5" style={{textAlign: "left"}}>
-        
-        <h1 style={{paddingBottom: "1rem"}}>Create a new account</h1>
-        <p style={{paddingBottom: "1rem"}}>Welcome to DESDEO! Enter the required information to create an account.</p>
+    <Container>
+      <Row><Col><h2>Register a new user</h2></Col></Row>
+      <Row>
+        <Col md={{ span: 6, offset: 3 }}>
           {badUsername && <p className="text-danger">{`${errorMessage}`}</p>}
           {!registered && <Form
-            className="mb-3"
+            className="mx-6"
             action=""
             onSubmit={handleSubmit(onSubmit)}
           >
@@ -65,7 +59,7 @@ function Register({ apiUrl }: { apiUrl: string }) {
               <Form.Label>Username</Form.Label>
               <Form.Control
                 type="username"
-                placeholder="Enter an username"
+                placeholder="username"
                 name="username"
                 ref={register({ required: { value: true, message: "The username is required." } })}
                 isInvalid={errors.username !== undefined}
@@ -75,7 +69,7 @@ function Register({ apiUrl }: { apiUrl: string }) {
               <Form.Label>Password</Form.Label>
               <Form.Control
                 type="password"
-                placeholder="Enter your password"
+                placeholder="password"
                 name="password"
                 ref={register({ required: { value: true, message: "Password required." }, validate: value => value.length > 5 || "Password too short. Password must be at least 6 characters long." })}
                 isInvalid={errors.password !== undefined}
@@ -85,7 +79,7 @@ function Register({ apiUrl }: { apiUrl: string }) {
               <Form.Label>Repeat password</Form.Label>
               <Form.Control
                 type="password"
-                placeholder="Repeat your password"
+                placeholder="confirm password"
                 name="passwordConfirm"
                 ref={register({ required: { value: true, message: "Password confirmation required." }, validate: value => value === getValues("password") || "Passwords do not match!" })}
                 isInvalid={errors.passwordConfirm !== undefined}
@@ -96,35 +90,9 @@ function Register({ apiUrl }: { apiUrl: string }) {
             <Button className="mt-1" type="submit">Register</Button>
           </Form>}
           {registered && <Link to="/Login">Proceed to login</Link>}
-          </Col>
-            <Col lg={6}>
-              <Row>
-              <h2>Already have an account?</h2>
-
-              <div style={{textAlign:"center", color:"white"}}>
-              
-              <Link to={"/login"}>
-              <Button>
-              Login
-              </Button>
-              </Link>
-                
-              </div>
-              
-              </Row>
-              <Row>
-              <div style={{textAlign:"center", color:"white"}}>
-              <img src={landing}  style={{maxWidth:"70%", height: "auto"}} alt=""></img>
-              </div>
-              </Row>
-              
-             
-        
-            </Col>
-          </Row>
-        </Container>
         </Col>
-        </Row>
+      </Row>
+    </Container>
   );
 }
 

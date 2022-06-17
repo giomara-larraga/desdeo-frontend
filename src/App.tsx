@@ -2,8 +2,9 @@ import React from "react";
 import "./App.css";
 
 import Login from "./views/Login";
+import Home from "./views/Home";
 import LandingPage from "./views/LandingPage";
-import NavigationBar from "./components/NavigationBar";
+import NavigationBar from "./components/NavBar";
 import Logout from "./views/Logout";
 import Register from "./views/Register";
 import ProblemDefinition from "./views/ProblemDefinition";
@@ -15,10 +16,20 @@ import MethodCreate from "./views/MethodCreate";
 import Questionnaire from "./views/Questionnaire";
 import { Tokens } from "./types/AppTypes";
 import { useState } from "react";
+import PrivateLayout from "./components/PrivateLayout"
 
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 
-import "bootstrap/dist/css/bootstrap.min.css";
+//import "bootstrap/dist/css/bootstrap.min.css";
+
+import './style/desdeo_template.scss'
+
+import { Container } from "react-bootstrap";
+
+interface DataModal{
+  showModal: boolean;
+  onClose: any;
+}
 
 function App() {
   const [isLoggedIn, SetIsLoggedIn] = useState<boolean>(false);
@@ -27,7 +38,8 @@ function App() {
   const [activeProblemId, SetActiveProblemId] = useState<number | null>(null);
   const [tokens, SetTokens] = useState<Tokens>({ access: "", refresh: "" });
   const [chosenMethod, SetChosenMethod] = useState("");
-
+  const [loginShow, setLoginShow] = React.useState(false);
+  const [currentPage, setCurrentPage] = useState("");
   const API_URL: string = "http://127.0.0.1:5000";
 
   /*
@@ -50,19 +62,21 @@ function App() {
 
   return (
     <div className="App">
+      <Container fluid style={{padding:"0px"}}>
       <Router>
-        <NavigationBar isLoggedIn={isLoggedIn} loggedAs={loggedAs} />
+        
         <Switch>
           <Route path="/" exact>
-            <LandingPage />
+            <Home />
           </Route>
           <Route path="/login" exact>
+
             <Login
               apiUrl={API_URL}
               setIsLoggedIn={SetIsLoggedIn}
               setLoggedAs={SetLoggedAs}
               setTokens={SetTokens}
-            />
+              />
           </Route>
           <Route path="/logout" exact>
             <Logout
@@ -79,23 +93,36 @@ function App() {
               apiUrl={API_URL}
             />
           </Route>
+         
+            <Route path="/main" exact>
+            <PrivateLayout title="Welcome">
+            <LandingPage />
+            </PrivateLayout>
+          </Route>
+          
           <Route path="/problem/create" exact>
+          <PrivateLayout title="Optimization problems">
             <ProblemDefinition
               apiUrl={API_URL}
               isLoggedIn={isLoggedIn}
               loggedAs={loggedAs}
               tokens={tokens}
             />
+            </PrivateLayout>
           </Route>
           <Route path="/problem/explore" exact>
+            <PrivateLayout title="Optimization problems">
             <ProblemExplore
               apiUrl={API_URL}
               isLoggedIn={isLoggedIn}
               loggedAs={loggedAs}
               tokens={tokens}
+              setCurrentPage={setCurrentPage}
             />
+            </PrivateLayout>
           </Route>
           <Route path="/method/create" exact>
+          <PrivateLayout title="Start a new solution process">
             <MethodCreate
               apiUrl={API_URL}
               isLoggedIn={isLoggedIn}
@@ -104,10 +131,13 @@ function App() {
               setMethodCreated={SetMethodCreated}
               setChosenMethod={SetChosenMethod}
               setActiveProblemId={SetActiveProblemId}
+              setCurrentPage={setCurrentPage}
             />
+            </PrivateLayout>
           </Route>
           <Route path="/method/optimize" exact>
             {chosenMethod === "reference_point_method" && (
+              <PrivateLayout title="Reference point method">
               <ReferencePointMethod
                 apiUrl={API_URL}
                 isLoggedIn={isLoggedIn}
@@ -116,8 +146,10 @@ function App() {
                 methodCreated={methodCreated}
                 activeProblemId={activeProblemId}
               />
+              </PrivateLayout>
             )}
             {chosenMethod === "synchronous_nimbus" && (
+              <PrivateLayout title="Synchronous NIMBUS">
               <NimbusMethod
                 apiUrl={API_URL}
                 isLoggedIn={isLoggedIn}
@@ -126,8 +158,10 @@ function App() {
                 methodCreated={methodCreated}
                 activeProblemId={activeProblemId}
               />
+              </PrivateLayout>
             )}
             {chosenMethod === "nautilus_navigator" && (
+              <PrivateLayout title="NAUTILUS navigator">
               <NautilusNavigatorMethod
                 apiUrl={API_URL}
                 isLoggedIn={isLoggedIn}
@@ -136,18 +170,24 @@ function App() {
                 methodCreated={methodCreated}
                 activeProblemId={activeProblemId}
               />
+              </PrivateLayout>
             )}
           </Route>
           <Route path="/questionnaire" exact>
+            <PrivateLayout title="Questionnaire">
             <Questionnaire
               apiUrl={API_URL}
               isLoggedIn={isLoggedIn}
               loggedAs={loggedAs}
               tokens={tokens}
             />
+            </PrivateLayout>
           </Route>
+  
+          
         </Switch>
       </Router>
+      </Container>
     </div>
   );
 }
