@@ -151,6 +151,20 @@ $theme-colors: (
   /*position: fixed;*/ //remove it
   }
 
+  .topbar{
+    background-color: $white !important;
+    //box-shadow: 0 0.3rem 0.6rem rgb(0 0 0 / 15%) !important
+  }
+
+  .topbar .nav-item {
+    padding-left: 2rem !important;
+    padding-bottom: 0.1rem !important;
+    color: #393f4c !important;
+    font-size: 1.2rem !important;
+    font-weight: bold !important;
+    font-family: 'Lato' !important;
+  }
+
 // Import Bootstrap and its default variables
 @import '~bootstrap/scss/bootstrap.scss';
 

@@ -2,6 +2,7 @@ import React from "react";
 
 import { Container,Row,Col,Button, Card} from "react-bootstrap";
 import landing from '../images/g18.png';
+import { Link } from "react-router-dom";
 
 function LandingPage() {
   return  (
@@ -16,43 +17,51 @@ function LandingPage() {
         <Col lg={4}>
           <Card>
             <Card.Title>
-              Explore problems
-            </Card.Title>
-            <Card.Body>
-              <div>
-              <p>We have various multiobjective optimization problems already implemented.</p>
-              <Button>Explore</Button>
-              </div>
-            </Card.Body>
-          </Card>
-        </Col>
-        <Col lg={4}>
-          <Card>
-            <Card.Title>
-              Define a new problem
-            </Card.Title>
-            <Card.Body>
-              <div>
-                <p>Define a new problem utilizing a csv file containing a set of objective values.</p>
-                <Button>Define</Button>
-              </div>
-            </Card.Body>
-          </Card>
-        </Col>
-        <Col lg={4}>
-          <Card>
-            <Card.Title>
               Start a solution process
             </Card.Title>
             <Card.Body>
               <div>
               <p>Select the problem to solve and the method to utilize and start a new solution process.</p>
+              <Link to={"/method/create"}>
               <Button>Start</Button>
+              </Link>
+
               </div>
 
             </Card.Body>
           </Card>
         </Col>
+        <Col lg={4}>
+          <Card>
+            <Card.Title>
+              Access solutions obtained previously
+            </Card.Title>
+            <Card.Body>
+              <div>
+              <p>If you have utilized DESDEO before, we store the final solutions found for each problem.</p>
+              <Link to={"/problem/explore"}>
+              <Button>Explore</Button>
+              </Link>
+              </div>
+            </Card.Body>
+          </Card>
+        </Col>
+        <Col lg={4}>
+          <Card>
+            <Card.Title>
+              Do you need help?
+            </Card.Title>
+            <Card.Body>
+              <div>
+                <p>Try to find your question in the FAQ section, visit our website, or contact us.</p>
+                <Link to={"/help"}>
+              <Button>Learn more</Button>
+              </Link>
+              </div>
+            </Card.Body>
+          </Card>
+        </Col>
+
 
 
       </Row>

@@ -14,6 +14,7 @@ import NimbusMethod from "./views/NimbusMethod";
 import NautilusNavigatorMethod from "./views/NautilusNavigatorMethod";
 import MethodCreate from "./views/MethodCreate";
 import Questionnaire from "./views/Questionnaire";
+import Help from "./views/Help"
 import { Tokens } from "./types/AppTypes";
 import { useState } from "react";
 import PrivateLayout from "./components/PrivateLayout"
@@ -95,7 +96,7 @@ function App() {
           </Route>
          
             <Route path="/main" exact>
-            <PrivateLayout title="Welcome">
+            <PrivateLayout title="Home">
             <LandingPage />
             </PrivateLayout>
           </Route>
@@ -111,7 +112,7 @@ function App() {
             </PrivateLayout>
           </Route>
           <Route path="/problem/explore" exact>
-            <PrivateLayout title="Optimization problems">
+            <PrivateLayout title="Historical information">
             <ProblemExplore
               apiUrl={API_URL}
               isLoggedIn={isLoggedIn}
@@ -172,6 +173,11 @@ function App() {
               />
               </PrivateLayout>
             )}
+          </Route>
+          <Route path="/help" exact>
+            <PrivateLayout title="Help">
+            <Help/>
+            </PrivateLayout>
           </Route>
           <Route path="/questionnaire" exact>
             <PrivateLayout title="Questionnaire">

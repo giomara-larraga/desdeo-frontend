@@ -40,7 +40,7 @@ export default function PrivateLayout({title, children}:LayoutProps) {
             </Nav.Link>
           </Nav.Item>
           <Nav.Item>
-            <Nav.Link as={Link} to="/method/optimize/nautilus_navigator" eventKey="4">
+            <Nav.Link as={Link} to="/help" eventKey="4">
               <FontAwesomeIcon icon={faCircleQuestion} size="lg"/> 
               <span>Help</span>
             </Nav.Link>
@@ -54,18 +54,20 @@ export default function PrivateLayout({title, children}:LayoutProps) {
         </Nav>
         </Navbar>
      
-      <Container fluid style={{maxWidth:"100%", height: "auto", padding:"0px"}}>
-        <Row>
+      <Container fluid style={{maxWidth:"100%", height: "auto", padding:"0px", margin:"0px"}}>
+        <Row className="g-0">
           <Col sm={12}>
-          <Navbar bg="dark" variant="dark" expand="lg">
-          <Nav className="p-0 justify-content-end">
-
+          <Navbar className="topbar" expand="lg">
+          <Nav>
+            <Nav.Item>
+              {title}
+            </Nav.Item>
           </Nav>
         </Navbar>
           </Col>
 
         </Row>
-        <Row>
+        <Row className="g-0">
           <Col sm={12}>
           { children }
           </Col>
