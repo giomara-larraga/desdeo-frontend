@@ -3,6 +3,7 @@ import {
   ObjectiveDatum,
   ObjectiveData,
   ProblemInfo,
+  ObjectiveDataSingleObjective,
 } from "../types/ProblemTypes";
 
 function ParseSolutions(
@@ -43,4 +44,4 @@ function ToTrueValues(data: ObjectiveData): ObjectiveData {
   return newData;
 }
 
-export { ParseSolutions, ToTrueValues };
+export { ParseSolutions, ToTrueValues};

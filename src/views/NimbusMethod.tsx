@@ -10,7 +10,8 @@ import ClassificationsInputForm from "../components/ClassificationsInputForm";
 import { Container, Row, Col, Button, Form, Table } from "react-bootstrap";
 import ReactLoading from "react-loading";
 import { ParseSolutions, ToTrueValues } from "../utils/DataHandling";
-import { HorizontalBars, ParallelAxes } from "desdeo-components";
+import { ParallelAxes } from "desdeo-components";
+import HorizontalBars from "../components/HorizontalBars";
 import SolutionTable from "../components/SolutionTable";
 import SolutionTableMultiSelect from "../components/SolutionTableMultiSelect";
 import { Link } from "react-router-dom";
@@ -23,7 +24,14 @@ interface NimbusMethodProps {
   methodCreated: boolean;
   activeProblemId: number | null;
 }
-
+interface LogProps{
+  id:number;
+  entry_type: string;
+  data: string;
+  info: string;
+  decision_variables: string;
+  objective_values: string;
+}
 type Classification = "<" | "<=" | ">=" | "=" | "0";
 type NimbusState =
   | "not started"
@@ -156,6 +164,29 @@ function NimbusMethod({
 
     startMethod();
   }, [activeProblemInfo, methodStarted]);
+
+  const saveLog = async (data: LogProps) => {
+    const log = { entry_type: data.entry_type, data: data.data, info:data.info, decision_variables:data.decision_variables, objective_values:data.objective_values }
+    try {
+      const res = await fetch(`${apiUrl}/log/create`, {
+        method: "POST",
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Bearer ${tokens.access}`,
+        },
+        body: JSON.stringify(log),
+      });
+
+      if (res.status == 201) {
+        // OK
+        console.log("OK")
+      }
+    } catch (e) {
+      console.log(e);
+      // Do nothing
+    }
+  };
+
 
   const iterate = async () => {
     // Attempt to iterate
@@ -375,6 +406,7 @@ function NimbusMethod({
               SetPreferredPoint(response.objective);
               SetFinalVariables(response.solution);
               SetHelpMessage("Stopped. Showing final solution reached.");
+              saveLog({id:0, entry_type:"Final solution", info:activeProblemInfo!.problemName, data: "NIMBUS", decision_variables: response.solution.join(","), objective_values: preferredPoint.join(",")})
               SetNimbusState("stop");
               break;
             }
@@ -518,17 +550,8 @@ function NimbusMethod({
 
   return (
     <Container>
-      <Row>
+{/*       <Row>
         <Col sm={12}>
-          <h3>Synchronous NIMBUS</h3>
-        </Col>
-        <Col sm={2}></Col>
-        <Col sm={8}>
-          <p>{`Help: ${helpMessage}`}</p>
-        </Col>
-        <Col sm={2}></Col>
-        <Col sm={4}></Col>
-        <Col sm={4}>
           {!loading && nimbusState !== "stop" && (
             <Button
               size={"lg"}
@@ -542,18 +565,6 @@ function NimbusMethod({
                   selectedIndices.length !== 1)
               }
             >
-              {nimbusState === "classification" &&
-                classificationOk &&
-                "Iterate"}
-              {nimbusState === "classification" &&
-                !classificationOk &&
-                "Check the classifications"}
-              {nimbusState === "archive" &&
-                selectedIndices.length > 0 &&
-                "Save"}
-              {nimbusState === "archive" &&
-                selectedIndices.length === 0 &&
-                "Continue"}
               {nimbusState === "intermediate" &&
                 computeIntermediate &&
                 selectedIndices.length === 2 &&
@@ -583,29 +594,16 @@ function NimbusMethod({
                 "Select a solution first"}
             </Button>
           )}
-          {loading && (
-            <Button disabled={true} size={"lg"} variant={"info"}>
-              {"Working... "}
-              <ReactLoading
-                type={"bubbles"}
-                color={"#ffffff"}
-                className={"loading-icon"}
-                height={28}
-                width={32}
-              />
-            </Button>
-          )}
         </Col>
-        <Col sm={4}></Col>
-      </Row>
+      </Row> */}
       {nimbusState === "not started" && <div>Method not started yet</div>}
       {nimbusState === "classification" && (
         <>
           <Row>
-            <Col sm={12}>
-              <h4 className={"mt-3"}>{"Classification"}</h4>
-            </Col>
             <Col sm={4}>
+            <Col sm={12}>
+          <p>{`Help: ${helpMessage}`}</p>
+        </Col>
               <Form>
                 <Form.Group as={Row}>
                   <Form.Label column sm="12">
@@ -659,6 +657,32 @@ function NimbusMethod({
                 nadir={activeProblemInfo.nadir}
                 directions={activeProblemInfo.minimize}
               />
+              {!loading && (
+            <Button
+              size={"lg"}
+              onClick={iterate}
+              disabled={(nimbusState === "classification" && !classificationOk) }
+            >
+              {nimbusState === "classification" &&
+                classificationOk &&
+                "Iterate"}
+              {nimbusState === "classification" &&
+                !classificationOk &&
+                "Check the classifications"}
+            </Button>
+          )}
+          {loading && (
+            <Button disabled={true} size={"lg"} variant={"info"}>
+              {"Working... "}
+              <ReactLoading
+                type={"bubbles"}
+                color={"#ffffff"}
+                className={"loading-icon"}
+                height={28}
+                width={32}
+              />
+            </Button>
+          )}
             </Col>
             <Col sm={8}>
               <div className={"mt-5"}>
@@ -701,6 +725,23 @@ function NimbusMethod({
                   handleSelection={SetSelectedIndices}
                 />
               </div>
+            </Col>
+            <Col sm={6}>
+            {!loading && (
+            <Button
+              size={"lg"}
+              onClick={iterate}
+            >
+              {nimbusState === "archive" &&
+                selectedIndices.length > 0 &&
+                "Save"}
+              {nimbusState === "archive" &&
+                selectedIndices.length === 0 &&
+                "Continue"}
+            </Button>
+          )}
+            </Col>
+            <Col sm={6}>
             </Col>
           </Row>
         </>
@@ -785,6 +826,46 @@ function NimbusMethod({
                 />
               </div>
             </Col>
+            <Col sm={6}>
+            {!loading && (
+            <Button
+              size={"lg"}
+              onClick={iterate}
+              disabled={
+                (nimbusState === "intermediate" &&
+                  computeIntermediate &&
+                  selectedIndices.length !== 2) 
+              }
+            >
+              {nimbusState === "intermediate" &&
+                computeIntermediate &&
+                selectedIndices.length === 2 &&
+                "Compute"}
+              {nimbusState === "intermediate" &&
+                computeIntermediate &&
+                selectedIndices.length !== 2 &&
+                "Select two solutions first"}
+              {nimbusState === "intermediate" &&
+                !computeIntermediate &&
+                "Continue"}
+            </Button>
+          )}
+          {loading && (
+            <Button disabled={true} size={"lg"} variant={"info"}>
+              {"Working... "}
+              <ReactLoading
+                type={"bubbles"}
+                color={"#ffffff"}
+                className={"loading-icon"}
+                height={28}
+                width={32}
+              />
+            </Button>
+          )}
+            </Col>
+            <Col sm={6}>
+
+            </Col>
           </Row>
         </>
       )}
@@ -841,6 +922,37 @@ function NimbusMethod({
                   handleSelection={SetSelectedIndices}
                 />
               </div>
+            </Col>
+            <Col sm={6}>
+            {!loading && (
+            <Button
+              size={"lg"}
+              onClick={iterate}
+              disabled={
+                (nimbusState === "select preferred" &&
+                  selectedIndices.length !== 1)
+              }
+            >
+              {nimbusState === "select preferred" &&
+                cont &&
+                selectedIndices.length === 1 &&
+                "Continue"}
+              {nimbusState === "select preferred" &&
+                cont &&
+                selectedIndices.length !== 1 &&
+                "Select a solution first"}
+              {nimbusState === "select preferred" &&
+                !cont &&
+                selectedIndices.length === 1 &&
+                "Stop"}
+              {nimbusState === "select preferred" &&
+                !cont &&
+                selectedIndices.length !== 1 &&
+                "Select a solution first"}
+            </Button>
+          )}
+            </Col>
+            <Col sm={6}>
             </Col>
           </Row>
         </>

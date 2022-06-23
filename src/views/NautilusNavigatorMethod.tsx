@@ -7,10 +7,13 @@ import {
 import { Tokens } from "../types/AppTypes";
 import { Container, Row, Col, Button, Card, ProgressBar } from "react-bootstrap";
 import ReactLoading from "react-loading";
-import { NavigationBars } from "desdeo-components";
+import { NavigationBars } from "../components/NavigationBars";
 import Slider from "@material-ui/core/Slider";
 import InputForm from "../components/InputForm";
 import { CSVDownload, CSVLink } from "react-csv";
+
+import { faPlay, faStop } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 // TODO: should be imported, and need to update the NavigationData type in NavigationBars /types
 // Test with 7 maximizable objectives.. only possible to test the drawing I guess..
@@ -24,7 +27,14 @@ type RectDimensions = {
     marginTop: number;
     marginBottom: number;
 };
-
+interface LogProps{
+    id:number;
+    entry_type: string;
+    data: string;
+    info: string;
+    decision_variables: string;
+    objective_values: string;
+  }
 interface NautilusNavigatorMethodProps {
     isLoggedIn: boolean;
     loggedAs: string;
@@ -97,12 +107,12 @@ function NautilusNavigatorMethod({
 
     // default dims. Change height to fit objectives better, currently no adaptive chartdims.
     const dims: RectDimensions = {
-        chartHeight: 1200,
+        chartHeight: 700,
         chartWidth: 1200,
         marginLeft: 80,
         marginRight: 10,
-        marginTop: 40,
-        marginBottom: 0,
+        marginTop: 80,
+        marginBottom: 10,
     };
 
     // FUNCTIONS to handle stuff
@@ -122,6 +132,28 @@ function NautilusNavigatorMethod({
         };
         return newInfo;
     };
+
+    const saveLog = async (data: LogProps) => {
+        const log = { entry_type: data.entry_type, data: data.data, info:data.info, decision_variables:data.decision_variables, objective_values:data.objective_values }
+        try {
+          const res = await fetch(`${apiUrl}/log/create`, {
+            method: "POST",
+            headers: {
+              "Content-type": "application/json",
+              Authorization: `Bearer ${tokens.access}`,
+            },
+            body: JSON.stringify(log),
+          });
+    
+          if (res.status == 201) {
+            // OK
+            console.log("OK")
+          }
+        } catch (e) {
+          console.log(e);
+          // Do nothing
+        }
+      };
 
     // NavigationBars needs stuff converted. Logic, ideal is top, maximizing and upperBound is on top.
     const convertData = (data: NavigationData, minimize: number[]) => {
@@ -621,7 +653,7 @@ function NautilusNavigatorMethod({
                             }
                             SetIterateNavi(false);
                             SetLoading(false);
-
+                            saveLog({id:0, entry_type:"Final solution", info:activeProblemInfo!.problemName, data: "NAUTILUS navigator", decision_variables: bodyFinal.response.decision_vectors.join(","), objective_values: bodyFinal.response.objective_vectors.join(",")})
                             SetShowFinal(true);
 
                             return;
@@ -644,47 +676,77 @@ function NautilusNavigatorMethod({
     }, [iterateNavi, SetIterateNavi, itestateRef.current]);
 
     return (
-        <Container>
-            <h3 className="mb-2">{"NAUTILUS Navigator method"}</h3>
+        <Container fluid style={{paddingRight:"0px", marginRight:"0px"}}>
             {!satisfied && (
                 <>
-                    <Row>
-                        <Col md={2} className="mt-5">
-                            <p>Total distance traveled:</p>
-                            <ProgressBar now={distanceTraveled} animated label={`${Math.round(distanceTraveled)}%`}/>
-                            <br/>
-                            {fetchedInfo && (
-                                <>
-                                    <InputForm
-                                        setReferencePoint={(ref: number[]) => {
-                                            updatePoint(ref, true);
-                                        }}
-                                        referencePoint={referencePoint}
-                                        nObjectives={activeProblemInfo!.nObjectives}
-                                        objectiveNames={activeProblemInfo!.objectiveNames}
-                                        ideal={activeProblemInfo!.ideal}
-                                        nadir={activeProblemInfo!.nadir}
-                                        directions={activeProblemInfo!.minimize}
-                                        name={"Reference"}
-                                    />
-                                    <InputForm
-                                        setReferencePoint={(bound: number[]) => {
-                                            updatePoint(bound, false);
-                                        }}
-                                        referencePoint={boundaryPoint}
-                                        nObjectives={activeProblemInfo!.nObjectives}
-                                        objectiveNames={activeProblemInfo!.objectiveNames}
-                                        ideal={activeProblemInfo!.ideal}
-                                        nadir={activeProblemInfo!.nadir}
-                                        directions={activeProblemInfo!.minimize}
-                                        name={"Boundary"}
-                                    />
-                                </>
-                            )}
+                    <Row style={{paddingRight:"0px", marginRight:"0px"}}>
+                        <Col sm={2} className="preference-col">
+                            <Row>
+                                <Col sm={12}>
+                                    <p>Total distance traveled:</p>
+                                    <ProgressBar now={distanceTraveled} animated label={`${Math.round(distanceTraveled)}%`}/>
+                                    <br/>
+                                        {fetchedInfo && (
+                                            <>
+                                                <InputForm
+                                                    setReferencePoint={(ref: number[]) => {
+                                                        updatePoint(ref, true);
+                                                    }}
+                                                    SetBoundaryPoint={(bound: number[]) => {
+                                                        updatePoint(bound, false);
+                                                    }}
+                                                    referencePoint={referencePoint}
+                                                    boundaryPoint={boundaryPoint}
+                                                    nObjectives={activeProblemInfo!.nObjectives}
+                                                    objectiveNames={activeProblemInfo!.objectiveNames}
+                                                    ideal={activeProblemInfo!.ideal}
+                                                    nadir={activeProblemInfo!.nadir}
+                                                    directions={activeProblemInfo!.minimize}
+                                                    name={"Reference"}
+                                                />
+                                               
+                                            </>
+                                        )}
+                                </Col>
+                            
+                            </Row>
+                            <Row>
+                                <Col sm={12}>
+                                    <Row className="bottom-div">
+                                    
+                                        <Col sm={6} className="p-3">
+                                        <Button disabled={false} size="lg" onClick={toggleIteration} variant="primary">
+                                        <FontAwesomeIcon icon={faPlay} size="lg"/> 
+                                        </Button>
+                                        </Col>
+                                        <Col sm={6} className="p-3">
+                                        {showFinal && (
+                                        <>
+                                            <CSVLink data={finalObjectives.map((objectives, i) => objectives.concat(finalVariables[i]))}>Export solution(s) to CSV</CSVLink>
+                                        </>
+                                        )}
+                                        {!showFinal && (
+
+                                            <Button size="lg" onClick={toggleIteration} variant="primary">
+                                            <FontAwesomeIcon icon={faStop} size="lg"/> 
+                                            </Button>
+                                        )
+                                        
+                                        }
+                                        </Col>
+
+                                    </Row>
+
+
+                                </Col>
+                            </Row>
+                            
                         </Col>
-                        <Col xxl={10} className="mr-auto">
-                            {fetchedInfo && (
-                                <div className={"mt-5"}>
+                        <Col sm={10}>
+                            <Row>
+                                <Col sm={12}>
+                                {fetchedInfo && (
+                                <div>
                                     {/* console.log("ennen piirtoa archive", dataArchive) */}
                                     {/*console.log("ennen piirtoa conv data", convertedData) */}
                                     <NavigationBars
@@ -725,81 +787,15 @@ function NautilusNavigatorMethod({
                                     />
                                 </div>
                             )}
+                                </Col>
+                            </Row>
+                            
+
+
+
                         </Col>
                     </Row>
-                    <Row>
-                        <Col sm={2} className="mt-auto">
-                            <Card border="light">
-                                <Card.Body>Iteration Speed</Card.Body>
-                                <Slider
-                                    value={speed}
-                                    onChange={(_, val) => {
-                                        SetSpeed(val as number);
-                                    }}
-                                    aria-labelledby="discrete-slider"
-                                    valueLabelDisplay="off"
-                                    step={1}
-                                    marks={[
-                                        {
-                                            value: 1,
-                                            label: "1",
-                                        },
-                                        {
-                                            value: 2,
-                                            label: "2",
-                                        },
-                                        {
-                                            value: 3,
-                                            label: "3",
-                                        },
-                                        {
-                                            value: 4,
-                                            label: "4",
-                                        },
-                                        {
-                                            value: 5,
-                                            label: "5",
-                                        },
-                                    ]}
-                                    min={1}
-                                    max={5}
-                                />
-                            </Card>
-                        </Col>
-                        <Col sm={2}>
-                            {loading && (
-                                <Button size={"lg"} onClick={toggleIteration}>
-                                    Stop
-                                </Button>
-                            )}
-                        </Col>
-                        <Col sm={2}>
-                            {!loading && !iterateNavi && (
-                                <Button disabled={false} size={"lg"} onClick={toggleIteration}>
-                                    Start Navigation
-                                </Button>
-                            )}
-                            {loading && (
-                                <Button disabled={true} size={"lg"} variant={"info"}>
-                                    {"Working... "}
-                                    <ReactLoading
-                                        type={"bubbles"}
-                                        color={"#ffffff"}
-                                        className={"loading-icon"}
-                                        height={28}
-                                        width={32}
-                                    />
-                                </Button>
-                            )}
-                        </Col>
-                        <Col>
-                            {showFinal && (
-                                <>
-                                    <CSVLink data={finalObjectives.map((objectives, i) => objectives.concat(finalVariables[i]))}>Export solution(s) to CSV</CSVLink>
-                                </>
-                            )}
-                        </Col>
-                    </Row>
+                    
                 </>
             )
             }

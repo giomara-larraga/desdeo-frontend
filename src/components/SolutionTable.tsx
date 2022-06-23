@@ -62,6 +62,7 @@ function SolutionTable({
                 variant={index === selectedIndex ? "info" : ""}
                 onClick={() => SetKey(index)}
                 key={index}
+                className=""
               >
                 <Row>
                   {datum.value.map((value, index) => {

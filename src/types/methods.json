@@ -1,0 +1,20 @@
+[
+    {
+      "id": 0,
+      "name": "Reference Point Method",
+      "type": "Analytical",
+      "preferences_type":"Reference points"
+    },
+    {
+      "id": 1,
+      "name": "Synchronous NIMBUS",
+      "type": "Analytical",
+      "preferences_type":"Classification"
+    },
+    {
+      "id": 2,
+      "name": "Nautilus Navigator",
+      "type": "Discrete",
+      "preferences_type":"Reference point"
+    }
+]

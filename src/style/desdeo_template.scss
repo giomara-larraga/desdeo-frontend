@@ -5,7 +5,8 @@
 
 // change the theme
 $white: #ffffff;
-$primary:  #f4317a;
+$primary:  #B02860;
+$hover-color:  #f4317a;
 $dark: #393f4c;
 $light: #f6f8fe;
 $secondary: #6d717c;
@@ -14,7 +15,7 @@ $header-height: 3rem;
 $nav-width: 68px;
 $normal-font-size: 1rem;
 $z-fixed: 100;
-$hover-color: #B02860;
+
 $disabled-color: #f5a7c8;
 $danger: #ff4136;
 
@@ -41,6 +42,8 @@ $theme-colors: (
 .btn-primary {
   color: $white !important;
   background-color: $primary;
+  margin-top: 1rem !important;
+  margin-bottom: 1rem !important;
 }
 .btn-primary:hover{
     background-color: $hover-color !important;
@@ -145,9 +148,8 @@ $theme-colors: (
   width: 5rem;
   background-color:#D2D2D2;
   margin-left:initial;
-  margin-bottom: -101% !important;
-  padding-bottom: 101% !important; 
   overflow: hidden;
+  height: 100%;
   /*position: fixed;*/ //remove it
   }
 
@@ -163,6 +165,76 @@ $theme-colors: (
     font-size: 1.2rem !important;
     font-weight: bold !important;
     font-family: 'Lato' !important;
+  }
+
+  .selected {
+    //font-weight: bold;
+    background:rgba($secondary, 0.25);
+  }
+
+  .table{
+    border-left:0 none !important;
+    border-right:0 none !important;
+    text-align: left !important;
+  }
+
+  .description-card{
+    text-align: left !important;
+    padding-bottom: 1rem !important;
+  }
+
+  .preference-col{
+    margin-top: 2rem !important;
+    padding-left: 2rem !important;
+    padding-right: 2rem !important;
+    //overflow-y: scroll;
+    //border-right: $secondary 1px solid !important;
+
+  }
+
+  .preference-box{
+    padding-left: 2rem;
+    padding-right: 2rem;
+    min-width: 15rem;
+  }
+
+  .bottom-div
+  {
+      background: rgba($light, 0.25);
+      bottom: 0;
+      position: fixed;
+      //width: 100%;
+  }
+
+  .main{
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    height: 100vh !important;
+    height: -webkit-fill-available !important;
+    max-height: 100vh !important;
+    overflow-x: auto;
+    overflow-y: hidden;
+   
+  }
+  .title-main{
+    //color: $hover-color !important;
+    font-size: 52px !important;
+    font-weight: bold !important;
+    text-align: left !important;
+  }
+
+  .card-footer{
+    background-color: inherit!important;
+    border-top: none!important;
+    text-align: end!important;
+  }
+
+  .card-title{
+    padding-top: 1.5rem!important;
+  }
+
+  .accordion-button {
+    font-weight: bold !important;
   }
 
 // Import Bootstrap and its default variables

@@ -2,17 +2,17 @@ import React from "react";
 
 import { Container,Row,Col,Button} from "react-bootstrap";
 import { Link } from "react-router-dom";
-import landing from '../images/g18.png';
+import landing from '../images/home.png';
 
 function Home() {
   return  (
     <Row className="g-0">
-    <Col lg={12} style={{ height: "100vh", backgroundColor:"black"}} className="d-flex align-items-center">
+    <Col lg={12} style={{ height: "100vh"}} className="d-flex align-items-center">
       <Container>
         <Row>
           <Col lg={6} className="d-flex flex-column" style={{alignContent:"left"}}>
-            <h1 style={{fontSize:"48px", fontWeight:700, fontFamily:"Lato", textAlign:"left", color:"white"}}>Enabling better decision making</h1>
-            <p style={{fontSize:"20px", marginTop:"25px", textAlign:"left", color:"white",  fontWeight:100, fontFamily:"Lato"}}> 
+            <h1 className="title-main">Enabling better decision making</h1>
+            <p style={{fontSize:"20px", marginTop:"25px", textAlign:"left",  fontWeight:100}}> 
                   DESDEO brings interactive methods closer to researchers and practitioners worldwide by providing them with implementations of interactive methods.
                   It is a free and open-source Python-based framework for developing and experimenting with interactive multiobjective optimization. 
                   We welcome you to utilize DESDEO and develop it further with us.</p>

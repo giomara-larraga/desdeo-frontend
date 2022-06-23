@@ -9,7 +9,8 @@ import ReferencePointInputForm from "../components/ReferencePointInputForm";
 import { Table, Container, Row, Col, Button, Form } from "react-bootstrap";
 import ReactLoading from "react-loading";
 import { ParseSolutions, ToTrueValues } from "../utils/DataHandling";
-import { HorizontalBars, ParallelAxes } from "desdeo-components";
+import { ParallelAxes } from "desdeo-components";
+import HorizontalBars from "../components/HorizontalBars";
 import SolutionTable from "../components/SolutionTable";
 
 interface ReferencePointMethodProps {

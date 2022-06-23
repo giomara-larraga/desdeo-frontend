@@ -95,9 +95,14 @@ function App() {
             />
           </Route>
          
-            <Route path="/main" exact>
+          <Route path="/main" exact>
             <PrivateLayout title="Home">
-            <LandingPage />
+            <LandingPage 
+              apiUrl={API_URL}
+              isLoggedIn={isLoggedIn}
+              loggedAs={loggedAs}
+              tokens={tokens}
+            />
             </PrivateLayout>
           </Route>
           

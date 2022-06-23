@@ -8,10 +8,11 @@ import { Tokens } from "../types/AppTypes";
 import ReferencePointInputForm from "../components/ReferencePointInputForm";
 import { Table, Container, Row, Col, Button, Form } from "react-bootstrap";
 import ReactLoading from "react-loading";
-import { ParseSolutions, ToTrueValues } from "../utils/DataHandling";
-import { HorizontalBars, ParallelAxes } from "desdeo-components";
+import { ParseSolutions, ToTrueValues} from "../utils/DataHandling";
+import { ParallelAxes } from "desdeo-components";
+import HorizontalBars from "../components/HorizontalBars";
 import SolutionTable from "../components/SolutionTable";
-import Split from "react-split";
+import { Link } from "react-router-dom";
 
 interface ReferencePointMethodProps {
   isLoggedIn: boolean;
@@ -28,7 +29,7 @@ function ReferencePointMethod({
   tokens,
   apiUrl,
   methodCreated,
-  activeProblemId,
+  activeProblemId
 }: ReferencePointMethodProps) {
   const [activeProblemInfo, SetActiveProblemInfo] = useState<ProblemInfo>();
   const [methodStarted, SetMethodStarted] = useState<boolean>(false);
@@ -46,6 +47,15 @@ function ReferencePointMethod({
   const [showFinal, SetShowFinal] = useState<boolean>(false);
   const [finalObjectives, SetFinalObjectives] = useState<number[]>([]);
   const [finalVariables, SetFinalVariables] = useState<number[]>([]);
+
+  interface LogProps{
+    id:number;
+    entry_type: string;
+    data: string;
+    info: string;
+    decision_variables: string;
+    objective_values: string;
+  }
 
   useEffect(() => {
     if (alternatives !== undefined) {
@@ -192,11 +202,68 @@ function ReferencePointMethod({
     startMethod();
   }, [activeProblemInfo, methodStarted]);
 
+  const saveLog = async (data: LogProps) => {
+    const log = { entry_type: data.entry_type, data: data.data, info:data.info, decision_variables:data.decision_variables, objective_values:data.objective_values }
+    try {
+      const res = await fetch(`${apiUrl}/log/create`, {
+        method: "POST",
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Bearer ${tokens.access}`,
+        },
+        body: JSON.stringify(log),
+      });
+
+      if (res.status == 201) {
+        // OK
+        console.log("OK")
+      }
+    } catch (e) {
+      console.log(e);
+      // Do nothing
+    }
+  };
+
+
+  const stop = async () => {
+    SetLoading(true);
+    console.log("loading...");
+    try {
+      const res = await fetch(`${apiUrl}/method/control`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${tokens.access}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          response: { satisfied: true, solution_index: indexCurrentPoint },
+        }),
+      });
+
+      if (res.status === 200) {
+        // ok
+        const body = await res.json();
+        const response = body.response;
+        SetFinalObjectives(response.objective_vector);
+        SetFinalVariables(response.solution);
+        saveLog({id:0, entry_type:"Final solution", info:activeProblemInfo!.problemName, data: "Reference point method", decision_variables: response.solution.join(","), objective_values: response.objective_vector.join(",")})
+        SetShowFinal(true);
+      } else {
+        console.log("Got a response which is not 200");
+      }
+    } catch (e) {
+      console.log("Could not iterate RFP");
+      console.log(e);
+      // do nothing
+    }
+    SetLoading(false);
+    console.log("done!");
+    
+  }
   const iterate = async () => {
     // Attempt to iterate
     SetLoading(true);
     console.log("loading...");
-    if (!satisfied) {
       try {
         console.log(`Trying to iterate with ${referencePoint}`);
         const res = await fetch(`${apiUrl}/method/control`, {
@@ -232,35 +299,7 @@ function ReferencePointMethod({
         console.log(e);
         // do nothing
       }
-    } else {
-      try {
-        const res = await fetch(`${apiUrl}/method/control`, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${tokens.access}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            response: { satisfied: true, solution_index: indexCurrentPoint },
-          }),
-        });
-
-        if (res.status === 200) {
-          // ok
-          const body = await res.json();
-          const response = body.response;
-          SetFinalObjectives(response.objective_vector);
-          SetFinalVariables(response.solution);
-          SetShowFinal(true);
-        } else {
-          console.log("Got a response which is not 200");
-        }
-      } catch (e) {
-        console.log("Could not iterate RFP");
-        console.log(e);
-        // do nothing
-      }
-    }
+    SetIndexCurrentPoint(0)
     SetLoading(false);
     console.log("done!");
   };
@@ -272,208 +311,16 @@ function ReferencePointMethod({
   ) {
     return <>Please define a method first.</>;
   }
-  
 
   return (
-    <Container fluid>
-{/*         <Row className="g-0" style={{alignItems:"center"}}>
-            <h2>Reference point method</h2>
-        </Row> */}
-        <Row>
-        <Col lg={4} className="border-right">
-        <Row>
-        <h4>Preference information</h4>
-        </Row>
-        <Row>
-        {fetchedInfo && (
-                  <div className={"mt-5"}>
-                    <HorizontalBars
-                      objectiveData={ToTrueValues(
-                        ParseSolutions([referencePoint], activeProblemInfo)
-                      )}
-                      referencePoint={referencePoint.map((v, i) =>
-                        activeProblemInfo.minimize[i] === 1 ? v : -v
-                      )}
-                      currentPoint={currentPoint.map((v, i) =>
-                        activeProblemInfo.minimize[i] === 1 ? v : -v
-                      )}
-                      setReferencePoint={(ref: number[]) =>
-                        SetReferencePoint(
-                          ref.map((v, i) =>
-                            activeProblemInfo.minimize[i] === 1 ? v : -v
-                          )
-                        )
-                      }
-                    />
-                  </div>
-                )}
-        </Row>
-        <Row style={{ flexDirection: 'row',
-            height: 50,
-            justifyContent: 'center',
-            alignItems: 'center',
-            position: 'absolute', //Here is the trick
-            bottom: 0,}}>
-              <Col>
-              {!loading && !satisfied && (
-                <Button size={"lg"} onClick={iterate}>
-                  Iterate
-                </Button>
-              )}
-              {!loading && satisfied && (
-                <Button size={"lg"} onClick={iterate}>
-                  Stop
-                </Button>
-              )}
-              {loading && (
-                <Button
-                  disabled={true}
-                  size={"lg"}
-                  variant={"info"}
-                >
-                  {"Working... "}
-                  <ReactLoading
-                    type={"bubbles"}
-                    color={"#ffffff"}
-                    className={"loading-icon"}
-                    height={28}
-                    width={32}
-                  />
-                </Button>
-              )}
-              </Col>
-              <Col>
-              <Button size={"lg"} onClick={iterate}>
-                  Stop
-                </Button>
-              </Col>
-            
-
-        </Row>
-      </Col>
-      
-      <Col lg={8}>
-        <Row>
-        <h4>Solutions obtained with the reference point method</h4>
-        </Row>
-        <Row>
-        {!(alternatives === undefined) && (
-            <>
-              <Row>
-                <Col sm={6}>
-                  <div className={"mt-2"}>
-                    <SolutionTable
-                      objectiveData={alternatives!}
-                      setIndex={SetIndexCurrentPoint}
-                      selectedIndex={indexCurrentPoint}
-                      tableTitle={""}
-                    />
-                  </div>
-                </Col>
-                <Col sm={6}>
-                  <div className={"mt-3"}>
-                    <ParallelAxes
-                      objectiveData={ToTrueValues(alternatives!)}
-                      selectedIndices={[indexCurrentPoint]}
-                      handleSelection={(x: number[]) => {
-                        x.length > 0
-                          ? SetIndexCurrentPoint(x.pop()!)
-                          : SetIndexCurrentPoint(indexCurrentPoint);
-                      }}
-                    />
-                  </div>
-                </Col>
-              </Row>
-            </>
-          )}
-        </Row>
-      </Col>
-    </Row>  
-    </Container>
-   
-    );
-    {/* <Container>
-      <h3 className="mb-3">{"Reference point method"}</h3>
+    <Container>
       {!showFinal && (
         <>
-          <p>{`Help: ${helpMessage}`}</p>
-          <Row>
-            <Col sm={4}></Col>
-            <Col sm={4}>
-              {!loading && !satisfied && (
-                <Button size={"lg"} onClick={iterate}>
-                  Iterate
-                </Button>
-              )}
-              {!loading && satisfied && (
-                <Button size={"lg"} onClick={iterate}>
-                  Stop
-                </Button>
-              )}
-              {loading && (
-                <Button
-                  disabled={true}
-                  size={"lg"}
-                  variant={"info"}
-                >
-                  {"Working... "}
-                  <ReactLoading
-                    type={"bubbles"}
-                    color={"#ffffff"}
-                    className={"loading-icon"}
-                    height={28}
-                    width={32}
-                  />
-                </Button>
-              )}
-            </Col>
-            <Col sm={4}></Col>
-          </Row>
-          <Row>
-            <Col sm={2}></Col>
-            <Col>
-              <h4 className="mt-3">
-                Currently selected solution and reference point
-              </h4>
-            </Col>
-            <Col sm={2}></Col>
-          </Row>
           <Row>
             <Col sm={4}>
+              <div className={"mt-5"} style={{paddingTop: "40px"}}>
               {fetchedInfo && (
                 <>
-                  <Form>
-                    <Form.Group as={Row}>
-                      <Form.Label column sm={8}>
-                        {
-                          "Are you satisfied with the currently selected solution?"
-                        }
-                      </Form.Label>
-                      <Col sm={3}>
-                        <Form.Check
-                          className={"mt-3"}
-                          id="satisfied-switch"
-                          type="switch"
-                          disabled={alternatives === undefined ? true : false}
-                          label={
-                            satisfied ? (
-                              <>
-                                {"no/"}
-                                <b>{"yes"}</b>
-                              </>
-                            ) : (
-                              <>
-                                <b>{"no"}</b>
-                                {"/yes"}
-                              </>
-                            )
-                          }
-                          checked={satisfied}
-                          onChange={() => SetSatisfied(!satisfied)}
-                        />
-                      </Col>
-                    </Form.Group>
-                  </Form>
                   <ReferencePointInputForm
                     setReferencePoint={SetReferencePoint}
                     referencePoint={referencePoint}
@@ -485,6 +332,7 @@ function ReferencePointMethod({
                   />
                 </>
               )}
+              </div>
             </Col>
             <Col sm={8}>
               {fetchedInfo && (
@@ -506,10 +354,41 @@ function ReferencePointMethod({
                         )
                       )
                     }
-                  />
+                  /> 
                 </div>
               )}
             </Col>
+          </Row>
+          <Row>
+            <Col sm={4}>
+            
+                <Button size={"lg"} onClick={iterate} disabled={(loading  || satisfied)?true:false}>
+                  Iterate
+                </Button>
+        
+             
+                <Button size={"lg"} disabled={(((indexCurrentPoint)===0)||loading)?true:false} onClick={stop}>
+                  Stop
+                </Button>
+              
+              {loading && (
+                <Button
+                  disabled={true}
+                  size={"lg"}
+                  variant={"info"}
+                >
+                  {"Working... "}
+                  <ReactLoading
+                    type={"bubbles"}
+                    color={"#ffffff"}
+                    className={"loading-icon"}
+                    height={28}
+                    width={32}
+                  />
+                </Button>
+              )}
+            </Col>
+            <Col sm={8}></Col>
           </Row>
           {!(alternatives === undefined) && (
             <>
@@ -574,13 +453,14 @@ function ReferencePointMethod({
               </tr>
             </tbody>
           </Table>
-          <Button variant="link" href="/">
-            {"Back to index"}
-          </Button>
+          
+          <Link to={{ pathname: "/main", state: { isLoggedIn, loggedAs, tokens, apiUrl } }}>
+              <Button>Back to index</Button>
+          </Link>
         </>
       )}
     </Container>
-  ); */}
+  );
 }
 
 export default ReferencePointMethod;

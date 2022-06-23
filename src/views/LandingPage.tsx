@@ -3,8 +3,21 @@ import React from "react";
 import { Container,Row,Col,Button, Card} from "react-bootstrap";
 import landing from '../images/g18.png';
 import { Link } from "react-router-dom";
+import { Tokens } from "../types/AppTypes";
 
-function LandingPage() {
+interface LandingPageProps {
+  isLoggedIn: boolean;
+  loggedAs: string;
+  tokens: Tokens;
+  apiUrl: string;
+}
+
+function LandingPage({
+  isLoggedIn,
+  loggedAs,
+  tokens,
+  apiUrl,
+}:LandingPageProps) {
   return  (
     <Container className="py-4 py-xl-5">
       <Row className="mb-5">

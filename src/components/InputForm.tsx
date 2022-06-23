@@ -14,7 +14,8 @@ import { MinOrMax } from "../types/ProblemTypes";
 import { ErrorMessage } from "@hookform/error-message";
 
 interface FormData {
-    values: number[];
+    values_ref: number[];
+    values_bound: number[];
 }
 
 
@@ -22,7 +23,11 @@ interface InputFormProps {
     setReferencePoint:
     | React.Dispatch<React.SetStateAction<number[]>>
     | ((x: number[]) => void);
+    SetBoundaryPoint:
+    | React.Dispatch<React.SetStateAction<number[]>>
+    | ((x: number[]) => void);
     referencePoint: number[];
+    boundaryPoint: number[];
     nObjectives: number;
     objectiveNames: string[];
     ideal: number[];
@@ -33,7 +38,9 @@ interface InputFormProps {
 
 function InputForm({
     setReferencePoint,
+    SetBoundaryPoint,
     referencePoint,
+    boundaryPoint,
     nObjectives,
     objectiveNames,
     ideal,
@@ -55,7 +62,8 @@ function InputForm({
 
     const onSubmit = (data: FormData) => {
         //console.log("dataa", data)
-        setReferencePoint(data.values);
+        setReferencePoint(data.values_ref);
+        SetBoundaryPoint(data.values_bound);
     };
 
     //console.log("called form", JSON.stringify(referencePoint));
@@ -80,7 +88,7 @@ function InputForm({
                                         <Col>
                                             <Form.Control
                                                 key={`controlof${name}`}
-                                                name={`values.${i}`}
+                                                name={`values_ref.${i}`}
                                                 defaultValue={`${referencePoint[i].toPrecision(5)}`}
                                                 ref={register({
                                                     required: true,
@@ -108,7 +116,44 @@ function InputForm({
                                             />
                                             <ErrorMessage
                                                 errors={errors}
-                                                name={`values.${i}`}
+                                                name={`values_ref.${i}`}
+                                                render={({ message }) => <p>{message}</p>}
+                                            />
+                                        </Col>
+                                    </Row>
+                                    <Row>
+                                        <Col>
+                                            <Form.Control
+                                                key={`boundaryof${name}`}
+                                                name={`values_bound.${i}`}
+                                                defaultValue={`${boundaryPoint[i].toPrecision(5)}`}
+                                                ref={register({
+                                                    required: true,
+                                                    pattern: {
+                                                        value: /[+-]?([0-9]*[.])?[0-9]+/,
+                                                        message: "Input not recognized as float.",
+                                                    },
+                                                    valueAsNumber: true,
+                                                    validate: {
+                                                        isFloat: (v) =>
+                                                            !Number.isNaN(parseFloat(v)) ||
+                                                            "Input must be float",
+                                                    },
+                                                    min: {
+                                                        value: directions[i] === 1 ? ideal[i] : -nadir[i],
+                                                        message: `Value too small. Must be greater than ${directions[i] === 1 ? ideal[i] : -nadir[i]
+                                                            }`,
+                                                    },
+                                                    max: {
+                                                        value: directions[i] === -1 ? -ideal[i] : nadir[i],
+                                                        message: `Value too too large. Must be less than ${directions[i] === -1 ? -ideal[i] : nadir[i]
+                                                            }`,
+                                                    },
+                                                })}
+                                            />
+                                            <ErrorMessage
+                                                errors={errors}
+                                                name={`values_bound.${i}`}
                                                 render={({ message }) => <p>{message}</p>}
                                             />
                                         </Col>

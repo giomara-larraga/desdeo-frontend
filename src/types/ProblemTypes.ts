@@ -29,6 +29,14 @@ interface ObjectiveData {
   nadir: number[];
 }
 
+type ObjectiveDataSingleObjective = {
+  value: ObjectiveDatum;
+  name: string;
+  direction: MinOrMax;
+  ideal: number;
+  nadir: number;
+};
+
 type NavigationData = {
   upperBounds: number[][];
   lowerBounds: number[][];
@@ -47,6 +55,7 @@ export type {
   ProblemType,
   MinOrMax,
   ObjectiveData,
+  ObjectiveDataSingleObjective,
   ObjectiveDatum,
   NavigationData,
 };
